@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Thinkjs</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/league.css" id="theme">
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section class="main-page">
+					<h2>thinkjs使用分享</h2>
+					<span style="margin-left: 500px;">by wang.xiaohu9</span>
+				</section>
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+						## node优势
+						- Node.js采用事件驱动、异步编程，为网络服务而设计
+						- Node.js非阻塞模式的IO处理给Node.js带来相对低系统资源耗用下的高性能与出众的负载能力
+						- Node.js轻量高效，可以认为是数据密集型分布式部署环境下的实时应用系统的完美解决方案
+						--
+						## node.js缺点
+						- 单进程，单线程。
+						- 异步编程，callback回调地狱。
+						--
+						## node在业界中使用
+						![image](./img/alibaba-node.png)
+
+					</script>
+				</section>
+
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					## thinkjs介绍
+					- Thinkjs 是一个快速、简单的基于MVC和面向对象的轻量级Node.js开发框架，秉承简洁易用的设计原则，在保持出色的性能和至简的代码同时，注重开发体验和易用性，为WEB应用开发提供强有力的支持。
+					- Thinkjs里面很多特性来源于ThinkPHP，同时根据Node.js的特点，使用了async/await, WebSocket等特性，让代码更简洁、优雅。
+
+					--
+					## 与其他node框架区别
+					- Express或Koa属于弱约束的MVC框架，基本功能完备，但要拿来给项目团队使用，需要大量定制
+					- 与阿里egg 相比 thinkjs目前版本就已经支持了async/await语法。 egg计划在以后的版本才支持
+					- 阿里egg 去年9月份才开源，文档缺乏。 Thinkjs 2014年9月份发布,文档健全
+					- 在目前来看，对于最潮的es6/es7/ts特性上，Thinkjs几乎是唯一的选
+				</section>
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+						## thinkjs特点
+						- ES6/7特性
+						- 支持丰富的数据库
+						- 丰富的Adapter
+						- 断点调试
+						- 遵循mvc和惯例优先
+						- 支持i18n等实用功能
+						--
+						## ES6/7特性
+						```javascript
+						  async listAction(){
+						    let data = await this.model('component').getList();
+						    this.success(data);
+						  }
+						```
+						--
+						## 支持丰富的数据库
+						- ThinkJS 现在支持 MySQL，SQLite，MongoDB 和 PostgreSQL 4 种数据库
+						- SAM后台数据库用的是mysql,根据对mysql使用的经验，对mysql封装的比较好
+						```javascript
+						  async listByComponentIdAction(){
+						    let componentId = this.get("component_id");
+						    let data = await this.model('team')
+						                         .field("JOB_NUMBER AS id, MEMBER_NAME AS name, role AS title")
+						                         .where({component_id: componentId})
+						                         .select();
+						    this.success(data);
+						  }
+						```
+						--
+						## 丰富的Adapter
+						- Adapter是用来解决一类功能的多种实现
+						- thinkjs默认支持的Adapter有 cache、Session、WebSocket、Template、db等
+						- 以cache为例，支持 file文件缓存、memory内存缓存、memcache缓存、redis缓存
+						```javascript
+						export default {
+						  type: "file", //缓存类型
+						  timeout: 0.5 * 3600, //失效时间，单位：秒
+						  adapter: { //不同 adapter 下的配置
+						    file: {
+						      path: think.RUNTIME_PATH + "/cache", //缓存文件的根目录
+						      path_depth: 2, //缓存文件生成子目录的深度
+						      file_ext: ".json" //缓存文件的扩展名
+						    },
+						    redis: {
+						      prefix: "sam_"
+						    }
+						  }};
+						let cacheResult = await think.cache(key); //默认使用file
+						let cacheResult = await think.cache(key, {type:'redis'}); //使用redis接口
+						```
+						--
+						## 断点调试
+						- 支持 node-inspector 、vscode、 webstorm断点调试
+						- 演示vscode调试
+						--
+						## 遵循mvc和惯例优先
+
+						```javascript
+						└─webapi
+						    ├─config
+						    │      config.js
+						    │
+						    ├─controller
+						    │      component.js
+						    │
+						    ├─logic
+						    │      component.js
+						    │
+						    └─model
+						            component.js
+
+						  async listAction(){
+						    let data = await this.model('component').getList();
+						    this.success(data);
+						  }
+						```
+						- 采用惯例优先， 不需要自己再写路由
+
+						- listAction对应的路由就是 http://127.0.0.1:8360/webapi/component/list
+						--
+						## 支持i18n等实用功能
+						- i18n
+
+						```javascript
+						│  └─locale
+						│          en.js
+						│          zh-cn.js
+
+						'SUCCESS': [10000, '操作成功。'],
+						'SERVER_INVALID': [10001, '服务器错误，请重新尝试。'],
+						'TOKEN_INVALID': [10002, '请核对您的登录信息后重新登录。'],
+						'NEED_LOGIN': [10003, '您没有权限，需要登陆'],
+						'DATA_NULL': [10004, '查询不到相关数据'],
+						'PASSWORD_ERROR': [10005, '用户名密码错误，请重新登录。'],
+						'DATA_REPEAT': [10006, '数据重复，请核对数据。'],
+						```
+						- CSRF
+						- 子域名部署
+						- 禁止端口访问
+					</script>
+				</section>
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+						## 安装 & 运行
+						> npm install -g thinkjs
+						>
+						> thinkjs new demo
+						>
+						> cd demo
+						>
+						> npm install
+						>
+						> npm start
+						--
+						## 创建模块 & 控制器
+						> thinkjs module webapi
+						>
+						> thinkjs controller webapi/component
+
+					</script>
+				</section>
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+					## thinkjs logic
+					```javascript
+					addAction(){
+					    this.allowMethods = "post"; //只允许 post 请求类型
+						let rules = {
+					    token: "required",
+					    component_id: "required",
+					    content:"required"
+							};
+							let flag = this.validate(rules);
+							if (!flag) {
+								return this.fail("服务验证错误，请核对数据重试", this.errors());
+							}
+					}
+					```
+					</script>
+				</section>
+
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+					## thinkjs model
+					```javascript
+					    getList() {
+					      return  this.alias("a")
+					                  .field('a.id,a.name,CONCAT(b.NAME,b.job_number) AS master,a.FUNCLIST AS intro,a.LOGO AS image,COUNT(c.USER_ID) AS love,COUNT(d.id) AS comment,0 AS support')
+					                  .join([" sam_committee b ON a.LEADER_ID = b.ID","sam_love c ON a.ID = c.component_id","sam_discuss d ON a.ID = d.COMPONENT_ID "])
+					                  .group("a.id,a.name,CONCAT(b.NAME,b.job_number),a.FUNCLIST,a.LOGO")
+					                  .select();
+					    }
+					```
+					</script>
+				</section>
+				<section>
+					<h2>Q & A </h2>
+				</section>
+			</div>
+		</div>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script>
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+		</script>
+	</body>
+</html>
