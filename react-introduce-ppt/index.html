@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>React introduce</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/league.css" id="theme">
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+	<body>
+		<div class="reveal">
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section class="main-page">
+					<h2>react简介</h2>
+					<span style="margin-left: 500px;">by wang.xiaohu9</span>
+				</section>
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+						## 从Backbone角度看React
+						  通过一个简单的示例来看两者的区别
+
+
+						  [BackBone](./demo/BackBoneDemo/index.html)
+						  [React](./demo/react-demos/demo1/index.html)
+
+
+						--
+						## Backbone 优点与 缺点
+						- 优点：Backbone可以把事情变的简单，视图永远都会跟着数据的变化而更新。取代更新DOM中的各个标签，你要做的只是在页面中渲染一个相关的模型。所有的交互都会和视图相关，更新Model也就是更新视图
+						- 缺点：Backbone渲染的是整个视图，因为DOM更新是最慢的一部分，而且视图完全更新还可能会打断用户的一些操作。还有一个问题，如果直接给视图控制Model的所有权力，这将会造成安全上的问题。改变通知可能会影响到应用中的其它部分，这样一来又很难去管理。
+						--
+						## React 虚拟DOM
+						![image](./img/virtual Dom.png)
+						--
+						## React 单向数据流Flux
+						![image](./img/Flux.png)
+					</script>
+				</section>
+
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+						## 从jQuery角度看React
+						- jQuery的思路是以dom为中心，所以的操作都在围绕着dom的变化来操作
+						- React 很少有DOM的操作,它是以数据（状态）驱动渲染
+						- 两者理念不同，在React项目中不需要使用jQuery
+						--
+						## 一、选取 DOM 元素
+						```javascript
+							class Demo extends React.Compoent {
+
+							    getDomNode() {
+							        return this.refs.root; // 获取 Dom Node
+							    }
+							    render() {
+							        return (
+							            <div ref="root">just a demo</div>
+							        );
+							    }
+							}
+							//React推荐的写法
+							class Demo extends React.Compoent {
+							    getDomNode() {
+							        return this.rootNode;
+							    }
+							    render() {
+							        return (
+							            <div ref={(c) => this.rootNode = c}>just a demo</div>
+							        );
+							    }
+							}
+						```
+						--
+						## 二、DOM 操作
+						Query 中提供了丰富的操作方法，但一个个操作 DOM 元素有的时候真的很烦人并且容易出错。React 通过数据驱动的思想，通过改变 view 对应的数据，轻松实现 DOM 的增删操作。
+
+						[DEMO2](./demo/react-demos/demo2/index.html)
+						--
+						## 三、事件的监听
+						React 通过根节点代理的方式，实现了一套很优雅的事件监听方案，在组件 unmount 时也不需要自己去处理内存回收相关的问题。并且通过合成事件（SyntheticEvent）在不同浏览器上有一致的属性
+						```javascript
+							class Demo extends React.Component {
+							    constructor(props) {
+							        super(props);
+							        this.handleClick = this.handleClick.bind(this);
+							    }
+							    handleClick() {
+							        alert('我是弹窗')；
+							    }
+							    render() {
+							        return (
+							            <div onClick={this.handleClick}>点击我弹出弹框</div>
+							        );
+							    }
+							}
+						```
+						--
+						## 四、document.ready
+						- react 作为一个 view 层框架，通常情况下页面只有一个用于渲染 React 页面组件的根节点 div，因此 document.ready，只需把脚本放在这个 div 后面执行即可。而对于渲染完成后的回调，我们可以使用 React 提供的 componentDidMount 生命周期
+							```javascript
+							import React from 'react';
+							class Demo extends React.Component {
+							    constructor(props) {
+							        super(props);
+							    }
+
+							    componentDidMount() {
+							        doSomethingAfterRender(); // 在组件渲染完成后执行一些操作，如远程获取数据，检测 DOM 变化等。
+							    }
+							    render() {
+							        return (
+							            <div>just a demo</div>
+							        );
+							    }
+							}
+							```
+						--
+						## 五、attr 方法
+						jQuery 使用 attr 方法，获取 Dom 元素的属性。在 React 中也可以配合 Ref 直接读取 DOM 元素的属性。
+
+						```javascript
+							class Demo extends React.Component {
+							    constructor(props) {
+							        super(props);
+							    }
+
+							    componentDidMount() {
+							        this.rootNode.scrollLeft = 10; // 渲染后将外层的滚动调至 10px
+							    }
+							    render() {
+							        return (
+							            <div
+							                ref={(c) => this.rootNode = c}
+							                style={{ width: '100px', overflow: 'auto' }}
+							            >
+							                <div style={{ width: '1000px' }}>just a demo</div>
+							            </div>
+							        );
+							    }
+							}
+						```
+						但是，在大部分的情况下，我们完全不需要做[DEMO3](./demo/react-demos/demo3/index.html)
+						--
+						## 六、addClass/removeClass/toggleClass
+						在 jQuery 的时代，我们通常靠获取 Dom 元素后，再 addClass/removeClass 来改变外观。在 React 中通过数据驱动和第三库classnames 修改样式
+
+						[DEMO4](./demo/react-demos/demo4/index.html)
+
+						--
+						## 七、css
+						jQuery 的 css 方法用于设置 DOM 元素的style属性，在 React 中我们可以直接设置 DOM 的 style 属性
+						[CSS in JS 简介](http://www.ruanyifeng.com/blog/2017/04/css_in_js.html)
+
+						```javascript
+						class Demo extends React.Component {
+						    constructor() {
+						        super(props);
+						        this.state = {
+						            backgorund: 'white',
+						        };
+						        this.handleClick = this.handleClick.bind(this);
+						    }
+						    handleClick() {
+						        this.setState({
+						            background: 'black',
+						        });
+						    }
+						    render() {
+						        return (
+						            <div
+						                style={{
+						                    background: this.state.background,
+						                }}
+						            >
+						                just a demo
+						                <button>change Background Color</button>
+						            </div>
+						        );
+						    }
+						}
+						```
+						--
+						## 八、ajax
+						React中使用`ajax`请求，一般使用`Fetch`。
+
+						Fetch API是一种新规范，用来取代`XMLHttpRequest`对象。
+
+						为了兼容一些老的浏览器，一般使用 两种fetch的polyfill实现 `whatwg-fetch`、`isomorphic-fetch`
+
+						其中`isomorphic-fetch` 同时支持node 和浏览器 如果做React服务端渲染，可以实现前后端共用一套代码
+
+					</script>
+				</section>
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+						## React 组件之间如何交流
+						Fish view中之间的交流都是通过on/trigger通过事件来交流。
+
+						React 组件之间交流的方式，可以分为以下 3 种：
+						- 【父组件】向【子组件】传值
+						- 【子组件】向【父组件】传值
+						-  没有任何嵌套关系的组件之间传值
+						--
+						## [父组件]向[子组件]传值
+						主要是利用 props 来进行交流
+						[DEMO5](./demo/react-demos/demo5/index.html)
+
+						如果组件嵌套层次太深，那么从外到内组件的交流成本就变得很高，通过 props 传递值的优势就不那么明显了。
+
+						建议尽可能的减少组件的层次。
+						--
+						## [子组件]向[父组件]传值
+						依赖 props 来传递引用,并通过回调的方式来实现[DEMO5](./demo/react-demos/demo5/index.html)
+						![image](./img/communication.png)
+						--
+						## 没有任何嵌套关系的组件之间传值
+						如果组件之间没有任何关系，组件嵌套层次比较深。
+						- Publish/Subscribe 模型，可以使用：PubSubJS
+						- Signals 模式 js-signals
+						--
+						## 总结
+						以上React组件之间的交流，比较适合用小型项目。大型项目 目前流行使用Redux统一管理状态
+
+					</script>
+				</section>
+
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+					## React 优化与技巧
+					### 优先使用无状态组件
+					```javascript
+					const ReplyItem = ({content,name,time}) => {
+					  return(
+					    <div className="reply-item">
+					      <p>{content}</p>
+					      <div className="reply-info">{name}
+					        <span className="comment-date">{time}</span>
+					      </div>
+					    </div>
+					  )
+					}
+					```
+					--
+					### 使用受控组件
+					受控组件，更新的时候需要使用this.setState
+					```javascript
+					 constructor() {
+					      super();
+					      this.state = {value: ""}
+					  }
+					  render() {
+					      return <input type="text" value={this.state.value}  onChange={this.handleChange.bind(this)}/>
+					  }
+					  handleChange(event) {
+					    this.setState({value:event.target.value})
+					  }
+					```
+					不受控组件，主要需要通过ref来获取input的值。
+					```javascript
+					  render() {
+					      return <input type="text" ref="myInput" />
+					  }
+					```
+					--
+					### 请将方法的bind一律置于constructor
+					放在render中， 每次 render 的时候都进行一次 bind，返回一个新函数，是比较消耗性能的做法。
+					建议放在 constructor中
+					--
+					### React性能的救星Immutablejs
+					![image](./img/licyle.png)
+
+					###
+
+					--
+					###　采用storybook开发
+					基于组件形式的开发方式
+					</script>
+				</section>
+				<section data-markdown data-separator="---" data-separator-vertical="--">
+					<script type="text/template">
+					## Redux
+					Redux 是 JavaScript 状态容器，提供可预测化的状态管理。
+
+					它的出现主要是为了修补Facebook官方推荐架构Flux的不足
+
+					--
+					### flux的流程是：
+					- view触发action中的方法
+					- action发送dispatch；
+					- store接收新的数据进行合并，触发View中绑定在store上的方法
+					- 通过修改局部state，改变局部view。
+					### redux是：
+					- view直接触发dispatch；
+					- 将action发送到reducer中后，根节点上会更新props，改变全局view。
+
+					--
+					### Redux三要素
+					- 应用中所有的state都以一个对象树的形式存储在一个单一的store中
+					- 唯一修改state的方式就是出发action
+					- 通过reducers描述action如何改变state树
+
+					--
+					### Redux流程
+					![image](./img/redux_liu.png)
+
+					--
+					### 重点Redux store
+- store通过createStore方法创建的,该方法接收reducer函数和初始化的数据(currentState),并将这2个参数并保存在store中。
+- createStore时传入的reducer方法会在store的dispatch被调用的时候，被调用，接收store中的state和action，根据业务逻辑修改store中的state；
+- store中包含subscribe、dispatch、getState和replaceReducer这4个方法。
+
+
+					--
+					### react-redux
+redux流程的一种封装，使其可以适配与react的代码结构
+- react-redux首先提供了一个Provider，可以将从createStore返回的store放入context中，使子集可以获取到store并进行操作；
+					```javascript
+					<Provider store={store}>
+							{() => <App />}
+					</Provider>
+					```
+- react-redux提供了connect方法，将原始根节点包装在Connect下，在Connect中的state存储不可变对象，并将state对象中的props和store中的dispatch函数传递给原始根节点；
+					```javascript
+					connect(mapStateToProps, mapDispatchToProps, mergeToProps)(App);
+					```
+
+                    --
+                    ### react-redux流程
+                    ![image](./img/react-redux.jpg)
+
+                    --
+                    ### Middleware
+                    redux中的middleware还是比较简单的，它只是针对于dispatch方法做了middleware处理；也就是说，只接受一个action对象，使用也很简单:
+                    ```javascript
+                    const createStoreWithMiddleware = applyMiddleware(
+			  			thunkMiddleware,
+			  			loggerMiddleware
+					)(createStore);
+					store = createStoreWithMiddleware(rootReducer, initialState);
+					```
+					redux的middleware用reduceRight方法，将applyMiddleware方法中的参数串起来，原始的dispatch方法会最后执行。
+					如果需要自定义middleware也很简单，这个middleware只接收一个action，执行后也需要返回一个action；如果需要执行下一步，调用next(action)即可。
+
+					--
+					![image](./img/middleware.png)
+					redux的middleware用reduceRight方法，将applyMiddleware方法中的参数串起来，原始的dispatch方法会最后执行。
+					第三方middleware：redux-thunk、redux-persist、redux-logger等等
+					如果需要自定义middleware也很简单，这个middleware只接收一个action，执行后也需要返回一个action；如果需要执行下一步，调用next(action)即可。
+					</script>
+				</section>
+
+
+				<section>
+					<h2>Q & A </h2>
+				</section>
+			</div>
+		</div>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script>
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+		</script>
+	</body>
+</html>
